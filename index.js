@@ -32,7 +32,8 @@ const {
 // =====================
 app.get("/launch-paywall", (req, res) => {
   const timestamp = Math.floor(Date.now() / 1000);
-  const orderId = "order-" + timestamp; // dynamic order ID
+  // const orderId = "order-" + timestamp; // dynamic order ID
+  const orderId = req.query.order || `order-${Date.now()}`; // fallback to timestamp if not provided
 
   const payload = {
     merchantAccount: MERCHANT_ACCOUNT,
