@@ -1,12 +1,23 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Redirect Handler</title>
+  <title>Payment Success</title>
 </head>
 <body>
+  <h1>Payment Successful!</h1>
+  <p>Check console for order UUID.</p>
 
-<h1>Purchases completed</h1>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
 
+    if(orderId){
+      console.log("✅ Order UUID from success page:", orderId);
+      // Your custom logic here
+      // e.g., fetch(`/mark-paid?orderId=${orderId}`, { method: 'POST' })
+    } else {
+      console.log("⚠️ No orderId found in URL");
+    }
+  </script>
 </body>
 </html>
