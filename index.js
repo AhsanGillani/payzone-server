@@ -76,9 +76,27 @@ app.get("/launch-paywall", (req, res) => {
 // Payzone callback
 // =====================
 app.post("/callback", (req, res) => {
-   const dataa = req.body;
-   console.log("Data: ", dataa);
    
+  const data = req.body; // full payload from Payzone
+  console.log("💬 Payzone callback payload:", data);
+
+  // You can now use the data to implement your logic
+  // Example: check if payment is approved
+  const approvedTx = data.transactions.find(
+    (t) => t.state === "APPROVED" && t.resultCode === 0
+  );
+
+  if (approvedTx) {
+    console.log("✅ Payment approved!");
+    console.log("Order ID:", data.orderId);
+    console.log("Amount:", approvedTx.amount, data.lineItem.currency);
+
+    // Your custom logic here
+    // e.g., mark order as paid in Firebase, Xano, or your DB
+  } else {
+    console.log("⚠️ Payment not approved yet or declined");
+  }
+
   const raw = req.rawBody;
   const headerSignature =
     req.headers["x-callback-signature"] || req.headers["X-Callback-Signature"];
@@ -92,10 +110,6 @@ app.post("/callback", (req, res) => {
     console.log("🚫 Invalid signature");
     return res.status(400).json({ status: "KO", message: "Invalid signature" });
   }
-
-  const data = req.body;
-  console.log("💬 Payzone callback status:", data.status);
-  console.log("💡 Order ID:", data.orderId);
 
   // Here you can plug your own logic later
   // e.g., update Firebase, Xano, DB, etc.
