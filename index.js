@@ -76,6 +76,9 @@ app.get("/launch-paywall", (req, res) => {
 // Payzone callback
 // =====================
 app.post("/callback", (req, res) => {
+   const dataa = req.body;
+   console.log("Data: ", dataa);
+   
   const raw = req.rawBody;
   const headerSignature =
     req.headers["x-callback-signature"] || req.headers["X-Callback-Signature"];
