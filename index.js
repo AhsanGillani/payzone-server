@@ -2,8 +2,36 @@ import express from "express";
 import crypto from "crypto";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import fs from "fs";
+
+
+
+import admin from "firebase-admin"; 
 
 dotenv.config();
+
+
+// Initialize Firebase Admin using service account file
+const serviceAccount = {
+  type: process.env.FIREBASE_TYPE,
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  client_id: process.env.FIREBASE_CLIENT_ID,
+  auth_uri: process.env.FIREBASE_AUTH_URI,
+  token_uri: process.env.FIREBASE_TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+};
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+
+
 const app = express();
 
 // Capture raw body for signature validation
@@ -73,10 +101,52 @@ app.get("/launch-paywall", (req, res) => {
   res.send(formHtml);
 });
 
+
+
+
+
+// =====================
+// Test route to update Firestore manually
+// =====================
+// =====================
+// Test route: update only if document exists
+// =====================
+app.get("/testumar", async (req, res) => {
+  const orderId = req.query.order;
+
+  if (!orderId) {
+    return res.status(400).send("❌ Missing query parameter: order");
+  }
+
+  try {
+    const orderRef = db.collection("passesOrders").doc(orderId);
+    const docSnap = await orderRef.get();
+
+    if (!docSnap.exists) {
+      console.log(`⚠️ Document passesOrders/${orderId} does not exist`);
+      return res.status(404).send(`⚠️ Document ${orderId} does not exist`);
+    }
+
+    // Only update status if document exists
+    await orderRef.update({
+      status: "test umar",
+      updatedAt: new Date().toISOString(),
+    });
+
+    console.log(`🔥 Firestore updated: passesOrders/${orderId} → status: success`);
+    res.send(`✅ Firestore document ${orderId} updated to "success"`);
+  } catch (err) {
+    console.error("❌ Error updating Firestore:", err);
+    res.status(500).send("❌ Error updating Firestore");
+  }
+});
+
+
+
 // =====================
 // Payzone callback
 // =====================
-app.post("/callback", (req, res) => {
+app.post("/callback", async (req, res) => {
    
   const data = req.body; // full payload from Payzone
   console.log("💬 Payzone callback payload:", data);
@@ -87,15 +157,33 @@ app.post("/callback", (req, res) => {
     (t) => t.state === "APPROVED" && t.resultCode === 0
   );
 
-  if (approvedTx) {
-    console.log("✅ Payment approved!");
-    console.log("Order ID:", data.orderId);
-    console.log("Amount:", approvedTx.amount, data.lineItem.currency);
 
-    // Your custom logic here
-    // e.g., mark order as paid in Firebase, Xano, or your DB
+
+ // ✅ Firestore update if approved
+  if (approvedTx) {
+  
+  try {
+  console.log("Order ID:", data.orderId);
+    const orderRef = db.collection("passesOrders").doc(data.orderId);
+    const docSnap = await orderRef.get();
+
+    if (!docSnap.exists) {
+      console.log(`⚠️ Document passesOrders/${data.orderId} does not exist`);
+      return res.status(404).send(`⚠️ Document ${data.orderId} does not exist`);
+    }
+
+    // Only update status if document exists
+    await orderRef.update({
+      status: "success",
+      updatedAt: new Date().toISOString(),
+    });
+
+    console.log(`🔥 Firestore updated: passesOrders/${data.orderId} → status: success`);
+  } catch (err) {
+    console.error("❌ Error updating Firestore:", err);
+  }
   } else {
-    console.log("⚠️ Payment not approved yet or declined");
+    console.log("⚠️ Payment not approved or declined");
   }
 
   const raw = req.rawBody;
