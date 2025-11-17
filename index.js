@@ -111,35 +111,37 @@ app.get("/launch-paywall", (req, res) => {
 // =====================
 // Test route: update only if document exists
 // =====================
-app.get("/testumar", async (req, res) => {
-  const orderId = req.query.order;
 
-  if (!orderId) {
-    return res.status(400).send("❌ Missing query parameter: order");
-  }
 
-  try {
-    const orderRef = db.collection("passesOrders").doc(orderId);
-    const docSnap = await orderRef.get();
+// app.get("/testumar", async (req, res) => {
+//   const orderId = req.query.order;
 
-    if (!docSnap.exists) {
-      console.log(`⚠️ Document passesOrders/${orderId} does not exist`);
-      return res.status(404).send(`⚠️ Document ${orderId} does not exist`);
-    }
+//   if (!orderId) {
+//     return res.status(400).send("❌ Missing query parameter: order");
+//   }
 
-    // Only update status if document exists
-    await orderRef.update({
-      status: "test umar",
-      updatedAt: new Date().toISOString(),
-    });
+//   try {
+//     const orderRef = db.collection("passesOrders").doc(orderId);
+//     const docSnap = await orderRef.get();
 
-    console.log(`🔥 Firestore updated: passesOrders/${orderId} → status: success`);
-    res.send(`✅ Firestore document ${orderId} updated to "success"`);
-  } catch (err) {
-    console.error("❌ Error updating Firestore:", err);
-    res.status(500).send("❌ Error updating Firestore");
-  }
-});
+//     if (!docSnap.exists) {
+//       console.log(`⚠️ Document passesOrders/${orderId} does not exist`);
+//       return res.status(404).send(`⚠️ Document ${orderId} does not exist`);
+//     }
+
+//     // Only update status if document exists
+//     await orderRef.update({
+//       status: "test umar",
+//       updatedAt: new Date().toISOString(),
+//     });
+
+//     console.log(`🔥 Firestore updated: passesOrders/${orderId} → status: success`);
+//     res.send(`✅ Firestore document ${orderId} updated to "success"`);
+//   } catch (err) {
+//     console.error("❌ Error updating Firestore:", err);
+//     res.status(500).send("❌ Error updating Firestore");
+//   }
+// });
 
 
 
@@ -179,6 +181,40 @@ app.post("/callback", async (req, res) => {
     });
 
     console.log(`🔥 Firestore updated: passesOrders/${data.orderId} → status: success`);
+
+
+ // =============================
+      // 🔥 NEW: Update passesPurchased
+      // =============================
+      console.log("🔍 Updating passesPurchased linked to:", data.orderId);
+
+      const orderDocRef = db.collection("passesOrders").doc(data.orderId);
+
+      const purchasedQuery = await db
+        .collection("passesPurchased")
+        .where("orderRef", "==", orderDocRef)
+        .get();
+
+      if (purchasedQuery.empty) {
+        console.log("⚠️ No passesPurchased documents linked to this order.");
+      } else {
+        const batch = db.batch();
+
+        purchasedQuery.forEach((doc) => {
+          batch.update(doc.ref, {
+            status: "success",
+            updatedAt: new Date().toISOString(),
+          });
+        });
+
+        await batch.commit();
+
+        console.log(`🔥 Updated ${purchasedQuery.size} passesPurchased documents → success`);
+      }
+
+
+
+
   } catch (err) {
     console.error("❌ Error updating Firestore:", err);
   }
