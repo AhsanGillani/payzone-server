@@ -150,6 +150,16 @@ app.get("/launch-paywall", (req, res) => {
 // =====================
 
 
+function getPassName(purchasedItem) {
+  const base = purchasedItem.passType?.trim() || "Pass";
+
+  if (purchasedItem.deal === true) {
+    return `${base.charAt(0).toUpperCase() + base.slice(1)} Deal`;
+  }
+
+  return `${base.charAt(0).toUpperCase() + base.slice(1)} Pass`;
+}
+
 
 async function createNotification({
   forUserRef,
@@ -260,7 +270,8 @@ if (!purchasedQuery.empty) {
 
 if (purchasedItem) {
   const passType = purchasedItem.passType;
-  const passName = purchasedItem.deal ? passType.deal : passType.pass;
+  const passName = getPassName(purchasedItem);
+
 
   await createNotification({
     heading: "Pass purchased",
