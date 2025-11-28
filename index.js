@@ -148,6 +148,37 @@ app.get("/launch-paywall", (req, res) => {
 // =====================
 // Payzone callback
 // =====================
+
+
+
+async function createNotification({
+  forUserRef,
+  by,
+  forRole,
+  content,
+  heading,
+  type,
+  soldPass,
+}) {
+  try {
+    await db.collection("Notifications").add({
+      forUserRef,
+      by,
+      forRole,
+      content,
+      heading,
+      type,
+      soldPass,
+      isSeen: false,
+      createdDate: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`🔔 Notification created: ${heading}`);
+  } catch (err) {
+    console.error("❌ Error creating notification:", err);
+  }
+}
+
 app.post("/callback", async (req, res) => {
    
   const data = req.body; // full payload from Payzone
@@ -212,6 +243,92 @@ app.post("/callback", async (req, res) => {
         console.log(`🔥 Updated ${purchasedQuery.size} passesPurchased documents → success`);
       }
 
+
+// =============================
+// 🔔 Create Notification #1: Pass Purchased
+// =============================
+
+// Get order data
+const orderData = docSnap.data();
+
+// Fetch one passesPurchased entry for this order (you said: firstItem)
+let purchasedItem = null;
+
+if (!purchasedQuery.empty) {
+  purchasedItem = purchasedQuery.docs[0].data();
+}
+
+if (purchasedItem) {
+  const passType = purchasedItem.passType;
+  const passName = purchasedItem.deal ? passType.deal : passType.pass;
+
+  await createNotification({
+    heading: "Pass purchased",
+
+    content: `You have successfully purchased '${passName}'`,
+
+    forRole: "user",
+    type: "passPurchased",
+
+    // From your requirement
+    forUserRef: orderData.userRef,
+    by: orderData.userRef,
+
+    soldPass: orderData.passDataRef,
+  });
+
+  console.log("🔔 Notification #1 (Pass Purchased) created.");
+}
+
+
+// =============================
+// 🔔 Notification #2: User must verify profile after purchasing pass
+// =============================
+await createNotification({
+  heading: "Selfie/profile verification required after the pass purchased",
+  content: "You have to add the name and image of the person for whom the pass has been purchased.",
+  forRole: "user",
+  type: "passPurchased",
+  forUserRef: orderData.userRef,
+  by: orderData.userRef,
+  soldPass: orderData.passDataRef,
+});
+
+console.log("🔔 Notification #3 Created (Profile Verification Required)");
+
+
+// =============================
+// 🔔 Notification #3: Admin Notification (Pass Purchased)
+// =============================
+
+if (purchasedItem) {
+  const passType = purchasedItem.passType;
+  const passName = purchasedItem.deal ? passType.deal : passType.pass;
+
+  // Extract user name from userRef
+  let userName = "User";
+
+  try {
+    const userSnap = await orderData.userRef.get();
+    if (userSnap.exists) {
+      userName = userSnap.data().display_name || "User";
+    }
+  } catch (e) {
+    console.log("⚠️ Unable to fetch user display_name:", e);
+  }
+
+  await createNotification({
+    heading: "Pass purchased",
+    content: `${userName} has purchased a pass ${passName}`,
+    forRole: "admin",
+    type: "passPurchased",
+    forUserRef: null, // Admin notifications usually not targeted to 1 user  
+    by: orderData.userRef,
+    soldPass: orderData.passDataRef,
+  });
+
+  console.log("🔔 Notification #2 Created (Admin)");
+}
 
 
 
