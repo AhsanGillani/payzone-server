@@ -151,13 +151,20 @@ app.get("/launch-paywall", (req, res) => {
 
 
 function getPassName(purchasedItem) {
-  const base = purchasedItem.passType?.trim() || "Pass";
+  console.log("🔍 getPassName called with:", purchasedItem);
 
-  if (purchasedItem.deal === true) {
-    return `${base.charAt(0).toUpperCase() + base.slice(1)} Deal`;
+  const base = purchasedItem?.passType?.trim() || "Pass";
+  console.log("📌 base passType:", base);
+
+  if (purchasedItem?.deal === true) {
+    const name = `${base.charAt(0).toUpperCase() + base.slice(1)} Deal`;
+    console.log("✅ Returning (deal):", name);
+    return name;
   }
 
-  return `${base.charAt(0).toUpperCase() + base.slice(1)} Pass`;
+  const name = `${base.charAt(0).toUpperCase() + base.slice(1)} Pass`;
+  console.log("✅ Returning (normal):", name);
+  return name;
 }
 
 
@@ -265,13 +272,17 @@ const orderData = docSnap.data();
 let purchasedItem = null;
 
 if (!purchasedQuery.empty) {
+  console.log("📄 purchasedQuery.docs:", purchasedQuery.docs.map(d => d.data()));
+
   purchasedItem = purchasedQuery.docs[0].data();
+  console.log("purchasedItem: ", purchasedItem);
+  
 }
 
 if (purchasedItem) {
-  const passType = purchasedItem.passType;
   const passName = getPassName(purchasedItem);
 
+console.log("From function Pass Name is: ", passName);
 
   await createNotification({
     heading: "Pass purchased",
