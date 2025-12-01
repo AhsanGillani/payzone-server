@@ -280,14 +280,14 @@ if (!purchasedQuery.empty) {
 }
 
 if (purchasedItem) {
-  const passName = getPassName(purchasedItem);
+  // const passName = getPassName(purchasedItem);
 
-console.log("From function Pass Name is: ", passName);
+// console.log("From function Pass Name is: ", passName);
 
   await createNotification({
     heading: "Pass purchased",
 
-    content: `You have successfully purchased '${passName}'`,
+    content: `You have successfully purchased '${purchasedItem?.passName}'`,
 
     forRole: "user",
     type: "passPurchased",
@@ -324,7 +324,7 @@ console.log("🔔 Notification #3 Created (Profile Verification Required)");
 // =============================
 
 if (purchasedItem) {
-  const passName = getPassName(purchasedItem);
+  // const passName = getPassName(purchasedItem);
 
   // Extract user name from userRef
   let userName = "User";
@@ -340,7 +340,7 @@ if (purchasedItem) {
 
   await createNotification({
     heading: "Pass purchased",
-    content: `${userName} has purchased a pass ${passName}`,
+    content: `${userName} has purchased a pass ${purchasedItem?.passName}`,
     forRole: "admin",
     type: "passPurchased",
     forUserRef: null, // Admin notifications usually not targeted to 1 user  
