@@ -324,8 +324,7 @@ console.log("🔔 Notification #3 Created (Profile Verification Required)");
 // =============================
 
 if (purchasedItem) {
-  const passType = purchasedItem.passType;
-  const passName = purchasedItem.deal ? passType.deal : passType.pass;
+  const passName = getPassName(purchasedItem);
 
   // Extract user name from userRef
   let userName = "User";
