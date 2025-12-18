@@ -3,9 +3,9 @@ import crypto from "crypto";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import fs from "fs";
-import path from "path";
+// import path from "path";
 
-const __dirname = new URL('.', import.meta.url).pathname;
+// const __dirname = new URL('.', import.meta.url).pathname;
 
 
 
@@ -158,9 +158,9 @@ async function createNotification({
 
 
 
-app.get("/success.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/success.html"));
-});
+// app.get("/success.html", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../public/success.html"));
+// });
 
 
 app.post("/callback", async (req, res) => {
