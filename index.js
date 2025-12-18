@@ -3,6 +3,9 @@ import crypto from "crypto";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import fs from "fs";
+import path from "path";
+
+const __dirname = new URL('.', import.meta.url).pathname;
 
 
 
@@ -105,50 +108,6 @@ app.get("/launch-paywall", (req, res) => {
 
 
 
-// =====================
-// Test route to update Firestore manually
-// =====================
-// =====================
-// Test route: update only if document exists
-// =====================
-
-
-// app.get("/testumar", async (req, res) => {
-//   const orderId = req.query.order;
-
-//   if (!orderId) {
-//     return res.status(400).send("❌ Missing query parameter: order");
-//   }
-
-//   try {
-//     const orderRef = db.collection("passesOrders").doc(orderId);
-//     const docSnap = await orderRef.get();
-
-//     if (!docSnap.exists) {
-//       console.log(`⚠️ Document passesOrders/${orderId} does not exist`);
-//       return res.status(404).send(`⚠️ Document ${orderId} does not exist`);
-//     }
-
-//     // Only update status if document exists
-//     await orderRef.update({
-//       status: "test umar",
-//       updatedAt: new Date().toISOString(),
-//     });
-
-//     console.log(`🔥 Firestore updated: passesOrders/${orderId} → status: success`);
-//     res.send(`✅ Firestore document ${orderId} updated to "success"`);
-//   } catch (err) {
-//     console.error("❌ Error updating Firestore:", err);
-//     res.status(500).send("❌ Error updating Firestore");
-//   }
-// });
-
-
-
-// =====================
-// Payzone callback
-// =====================
-
 
 function getPassName(purchasedItem) {
   console.log("🔍 getPassName called with:", purchasedItem);
@@ -195,6 +154,14 @@ async function createNotification({
     console.error("❌ Error creating notification:", err);
   }
 }
+
+
+
+
+app.get("/success.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/success.html"));
+});
+
 
 app.post("/callback", async (req, res) => {
    

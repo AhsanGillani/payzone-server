@@ -1,22 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Payment Success</title>
+  <meta charset="UTF-8" />
+  <title>Payment Successful</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --orange: #f97316;
+      --black: #0f0f0f;
+      --white: #ffffff;
+      --gray: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #000000, #1a1a1a);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--white);
+    }
+
+    .card {
+      background: var(--white);
+      color: var(--black);
+      width: 90%;
+      max-width: 420px;
+      border-radius: 24px;
+      padding: 32px 26px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      width: 90px;
+      margin-bottom: 18px;
+    }
+
+    .check {
+      font-size: 56px;
+      color: var(--orange);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 8px 0;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--gray);
+      margin: 6px 0 20px;
+    }
+
+    .order-box {
+      background: #f9fafb;
+      border: 1px dashed var(--orange);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+      word-break: break-all;
+      margin-bottom: 22px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      border: none;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(249, 115, 22, 0.45);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: 18px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Payment Successful!</h1>
-  <p>Check console for order UUID.</p>
+  <div class="card">
+    <!-- LOGO -->
+    <img
+      class="logo"
+      src="https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/aya-pass-n0ts83/assets/z28aj9c2bij7/LOGO_(3).png"
+      alt="Aya Pass Logo"
+    />
+
+    <!-- SUCCESS ICON -->
+    <div class="check">✔</div>
+
+    <!-- TEXT -->
+    <h1>Payment Successful</h1>
+    <p>Your payment has been completed successfully.</p>
+
+    <!-- ORDER ID -->
+    <div class="order-box" id="orderBox">
+      Enjoy Atractions
+    </div>
+
+    <!-- ACTION -->
+    <button onclick="goHome()">Continue</button>
+
+    <footer>
+      Thank you for choosing Aya Pass
+    </footer>
+  </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('orderId');
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("orderId");
 
-    if(orderId){
-      console.log("✅ Order UUID from success page:", orderId);
-      // Your custom logic here
-      // e.g., fetch(`/mark-paid?orderId=${orderId}`, { method: 'POST' })
-    } else {
-      console.log("⚠️ No orderId found in URL");
+    const box = document.getElementById("orderBox");
+
+    // if (orderId) {
+    //   box.innerText = "Order ID: " + orderId;
+    //   console.log("✅ Order ID:", orderId);
+    // } else {
+    //   box.innerText = "Order ID not found";
+    //   console.warn("⚠️ No orderId in URL");
+    // }
+
+    function goHome() {
+      window.location.href = "/";
     }
   </script>
 </body>
