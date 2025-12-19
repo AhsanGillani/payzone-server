@@ -3,15 +3,19 @@ import crypto from "crypto";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import fs from "fs";
-// import path from "path";
 
-// const __dirname = new URL('.', import.meta.url).pathname;
-
+import path from "path";
+import { fileURLToPath } from 'url';
 
 
 import admin from "firebase-admin"; 
 
 dotenv.config();
+
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 // Initialize Firebase Admin using service account file
@@ -157,10 +161,11 @@ async function createNotification({
 
 
 
+// Serve success.html from public folder
+app.get("/success.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "success.html"));
+});
 
-// app.get("/success.html", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../public/success.html"));
-// });
 
 
 app.post("/callback", async (req, res) => {
