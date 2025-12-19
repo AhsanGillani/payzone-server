@@ -86,7 +86,8 @@ app.get("/launch-paywall", (req, res) => {
     paymentMethod: "CREDIT_CARD",
     showPaymentProfiles: "false",
     callbackUrl: `${BASE_URL}/callback`,
-    successUrl: `${BASE_URL}/success.html?orderId=${orderId}`,
+    successUrl: "https://ayapass-web.flutterflow.app/activepasses",
+    // successUrl: `${BASE_URL}/success?orderId=${orderId}`,
     failureUrl: `${BASE_URL}/failure.html`,
     cancelUrl: `${BASE_URL}/cancel.html`,
   };
@@ -162,7 +163,7 @@ async function createNotification({
 
 
 // Serve success.html from public folder
-// app.get("/success.html", (req, res) => {
+// app.get("/success", (req, res) => {
 //   res.sendFile(path.join(__dirname, "public", "success.html"));
 // });
 
